@@ -41,10 +41,10 @@ services:
       - PGID=1000
       - TZ=Atlantic/Reykjavik
     volumes:
-      - ./library/sonarr-config:/config
+      - $LIBRARY_DIR/sonarr-config:/config
       - ./configs/sonarr.xml:/config/config.xml
-      - ./library/tv:/tv
-      - ./library/downloads:/downloads
+      - $LIBRARY_DIR/tv:/tv
+      - $LIBRARY_DIR/downloads:/downloads
     # ports:
     #   - 8989:8989
     restart: unless-stopped
@@ -56,10 +56,10 @@ services:
       - PGID=1000
       - TZ=Atlantic/Reykjavik
     volumes:
-      - ./library/radarr-config:/config
+      - $LIBRARY_DIR/radarr-config:/config
       - ./configs/radarr.xml:/config/config.xml
-      - ./library/movies:/movies
-      - ./library/downloads:/downloads
+      - $LIBRARY_DIR/movies:/movies
+      - $LIBRARY_DIR/downloads:/downloads
     # ports:
     #   - 7878:7878
     restart: unless-stopped
@@ -71,8 +71,8 @@ services:
       - PGID=1000
       - TZ=Atlantic/Reykjavik
     volumes:
-      - ./library/nzbget-config:/config
-      - ./library/downloads:/downloads
+      - $LIBRARY_DIR/nzbget-config:/config
+      - $LIBRARY_DIR/downloads:/downloads
     # ports:
     #   - 6789:6789
     restart: unless-stopped
