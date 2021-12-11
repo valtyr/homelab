@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  # Cloudflared proxy to expose traefik to web
+  cloudflared:
+    image: "cloudflare/cloudflared:2020.7.0"
+    restart: unless-stopped
+    volumes:
+      - ~/.cloudflared:/etc/cloudflared
+      - ./configs/cloudflared.yml:/etc/cloudflared/config.yml
+    links:
+      - authproxy
+    command: tunnel --url http://authproxy:4180 --no-tls-verify run 0c86f960-84f3-48e2-867b-5d3c5280e0a6
+
+  authproxy:
+    image: "quay.io/oauth2-proxy/oauth2-proxy"
+    env_file:
+      - ./configs/oauth.env
+    # ports:
+    #   - 4180:4180
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./configs/nginx.conf:/etc/nginx/nginx.conf
+    # ports:
+    #   - 80:80
+
+  # Test web service
+  whoami:
+    image: containous/whoami:latest
+    restart: unless-stopped
+
+  dashboard:
+    build: ./mini-interface
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Atlantic/Reykjavik
+    volumes:
+      - ./library/sonarr-config:/config
+      - ./configs/sonarr.xml:/config/config.xml
+      - ./library/tv:/tv
+      - ./library/downloads:/downloads
+    # ports:
+    #   - 8989:8989
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Atlantic/Reykjavik
+    volumes:
+      - ./library/radarr-config:/config
+      - ./configs/radarr.xml:/config/config.xml
+      - ./library/movies:/movies
+      - ./library/downloads:/downloads
+    # ports:
+    #   - 7878:7878
+    restart: unless-stopped
+
+  nzbget:
+    image: lscr.io/linuxserver/nzbget
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Atlantic/Reykjavik
+    volumes:
+      - ./library/nzbget-config:/config
+      - ./library/downloads:/downloads
+    # ports:
+    #   - 6789:6789
+    restart: unless-stopped
+
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOZZLE_BASE=/dozzle
+      - DOZZLE_FILTER="name=mini_"

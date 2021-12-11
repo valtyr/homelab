@@ -1,0 +1,9 @@
+tunnel: mini
+credentials-file: /etc/cloudflared/0c86f960-84f3-48e2-867b-5d3c5280e0a6.json
+url: http://authproxy:4180
+ingress:
+  # Rules map traffic from a hostname to a local service:
+  - hostname: m.valtyr.dev
+    service: http://authproxy:4180
+  # This “catch-all” rule doesn’t have a hostname/path, so it matches everything
+  - service: http_status:404
